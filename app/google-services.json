@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "843356888758",
+    "project_id": "transportapp-9786a",
+    "storage_bucket": "transportapp-9786a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:843356888758:android:eb8137ce55320e027f9017",
+        "android_client_info": {
+          "package_name": "com.example.transportapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9AV52Y8qmSru1GzIOUMyld92dcp2bBXQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
