@@ -1,3 +1,4 @@
+// MainActivity.kt
 package com.example.transportapp
 
 import android.content.Intent
@@ -39,7 +40,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import java.text.SimpleDateFormat
 import java.util.*
-import com.example.transportapp.ui.theme.TransportAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
         FirebaseApp.initializeApp(this)
 
         setContent {
-            TransportAppTheme {
+            MaterialTheme {
                 TransportApp()
             }
         }
@@ -64,6 +64,7 @@ data class Complaint(
     val vehicle: String = "",
     val ro: String = "",
     val issue: String = "",
+    val issueDetails: String = "",
     val timestamp: Long = System.currentTimeMillis(),
     val date: String = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
 )
@@ -73,7 +74,11 @@ data class Feedback(
     val officerFeedback: String = "",
     val managerFeedback: String = "",
     val suggestions: String = "",
-    val timestamp: Long = System.currentTimeMillis()
+    val isAnonymous: Boolean = false,
+    val userName: String = "",
+    val userMobile: String = "",
+    val timestamp: Long = System.currentTimeMillis(),
+    val date: String = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
 )
 
 // Sample Data
@@ -411,6 +416,7 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
     var searchRO by remember { mutableStateOf("") }
     var selectedRO by remember { mutableStateOf<RO?>(null) }
     var selectedIssue by remember { mutableStateOf("") }
+    var issueDetails by remember { mutableStateOf("") }
     var showVehicleDropdown by remember { mutableStateOf(false) }
     var showRODropdown by remember { mutableStateOf(false) }
     var showIssueDropdown by remember { mutableStateOf(false) }
@@ -446,6 +452,7 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
                 text = Strings.get("select_vehicle", lang),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
+                color = Color(0xFF212121),
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
@@ -457,12 +464,16 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
                     showVehicleDropdown = true
                 },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(Strings.get("search", lang)) },
+                placeholder = { Text(Strings.get("search", lang), color = Color.Gray) },
                 trailingIcon = {
                     IconButton(onClick = { showVehicleDropdown = !showVehicleDropdown }) {
                         Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                     }
-                }
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color(0xFF212121),
+                    unfocusedTextColor = Color(0xFF212121)
+                )
             )
 
             if (showVehicleDropdown && filteredVehicles.isNotEmpty()) {
@@ -476,6 +487,7 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
                         items(filteredVehicles) { vehicle ->
                             Text(
                                 text = vehicle.name,
+                                color = Color(0xFF212121),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
@@ -496,6 +508,7 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
                 text = Strings.get("select_ro", lang),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
+                color = Color(0xFF212121),
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
@@ -507,12 +520,16 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
                     showRODropdown = true
                 },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(Strings.get("search", lang)) },
+                placeholder = { Text(Strings.get("search", lang), color = Color.Gray) },
                 trailingIcon = {
                     IconButton(onClick = { showRODropdown = !showRODropdown }) {
                         Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                     }
-                }
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color(0xFF212121),
+                    unfocusedTextColor = Color(0xFF212121)
+                )
             )
 
             if (showRODropdown && filteredROs.isNotEmpty()) {
@@ -533,7 +550,7 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
                                     }
                                     .padding(16.dp)
                             ) {
-                                Text(text = ro.name, fontWeight = FontWeight.Bold)
+                                Text(text = ro.name, fontWeight = FontWeight.Bold, color = Color(0xFF212121))
                                 Text(text = ro.location, fontSize = 12.sp, color = Color.Gray)
                             }
                         }
@@ -548,6 +565,7 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
                 text = Strings.get("select_issue", lang),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
+                color = Color(0xFF212121),
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
@@ -556,12 +574,16 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
-                placeholder = { Text(Strings.get("select_issue", lang)) },
+                placeholder = { Text(Strings.get("select_issue", lang), color = Color.Gray) },
                 trailingIcon = {
                     IconButton(onClick = { showIssueDropdown = !showIssueDropdown }) {
                         Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                     }
-                }
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color(0xFF212121),
+                    unfocusedTextColor = Color(0xFF212121)
+                )
             )
 
             if (showIssueDropdown) {
@@ -575,6 +597,7 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
                         items(DataProvider.issues) { issue ->
                             Text(
                                 text = issue,
+                                color = Color(0xFF212121),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
@@ -588,6 +611,31 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Issue Details (Optional)
+            Text(
+                text = "Issue Details (Optional)",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF212121),
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            OutlinedTextField(
+                value = issueDetails,
+                onValueChange = { issueDetails = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp),
+                placeholder = { Text("Describe the issue in detail...", color = Color.Gray) },
+                maxLines = 5,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color(0xFF212121),
+                    unfocusedTextColor = Color(0xFF212121)
+                )
+            )
+
             Spacer(modifier = Modifier.height(32.dp))
 
             // Submit Button
@@ -597,7 +645,8 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
                         val complaint = Complaint(
                             vehicle = selectedVehicle!!.number,
                             ro = selectedRO!!.name,
-                            issue = selectedIssue
+                            issue = selectedIssue,
+                            issueDetails = issueDetails
                         )
 
                         // Save to Firebase
@@ -607,7 +656,7 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
                             .set(complaint)
 
                         // Send to WhatsApp
-                        val message = "New Complaint:\nVehicle: ${complaint.vehicle}\nRO: ${complaint.ro}\nIssue: ${complaint.issue}\nTime: ${complaint.date}"
+                        val message = "New Complaint:\nVehicle: ${complaint.vehicle}\nRO: ${complaint.ro}\nIssue: ${complaint.issue}\nDetails: ${complaint.issueDetails}\nTime: ${complaint.date}"
                         val intent = Intent(Intent.ACTION_VIEW).apply {
                             data = Uri.parse("https://wa.me/?text=${Uri.encode(message)}")
                         }
@@ -669,12 +718,16 @@ fun RODetailsScreen(navController: NavHostController, lang: String) {
                     showDropdown = true
                 },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(Strings.get("search", lang)) },
+                placeholder = { Text(Strings.get("search", lang), color = Color.Gray) },
                 trailingIcon = {
                     IconButton(onClick = { showDropdown = !showDropdown }) {
                         Icon(Icons.Default.Search, contentDescription = null)
                     }
-                }
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color(0xFF212121),
+                    unfocusedTextColor = Color(0xFF212121)
+                )
             )
 
             if (showDropdown && filteredROs.isNotEmpty()) {
@@ -695,7 +748,7 @@ fun RODetailsScreen(navController: NavHostController, lang: String) {
                                     }
                                     .padding(16.dp)
                             ) {
-                                Text(text = ro.name, fontWeight = FontWeight.Bold)
+                                Text(text = ro.name, fontWeight = FontWeight.Bold, color = Color(0xFF212121))
                                 Text(text = ro.location, fontSize = 12.sp, color = Color.Gray)
                             }
                         }
@@ -707,27 +760,25 @@ fun RODetailsScreen(navController: NavHostController, lang: String) {
 
             selectedRO?.let { ro ->
                 // Officer Info Card
-                InfoCard(
+                InfoCardWithCall(
                     title = "Officer Information",
                     icon = Icons.Default.Person,
                     color = Color(0xFF2196F3),
-                    content = {
-                        InfoRow("Name", ro.officerName)
-                        InfoRow("Mobile", ro.officerMobile)
-                    }
+                    name = ro.officerName,
+                    mobile = ro.officerMobile,
+                    context = context
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Dealer Info Card
-                InfoCard(
+                InfoCardWithCall(
                     title = "Dealer Information",
                     icon = Icons.Default.Store,
                     color = Color(0xFF4CAF50),
-                    content = {
-                        InfoRow("Name", ro.dealerName)
-                        InfoRow("Mobile", ro.dealerMobile)
-                    }
+                    name = ro.dealerName,
+                    mobile = ro.dealerMobile,
+                    context = context
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -748,6 +799,86 @@ fun RODetailsScreen(navController: NavHostController, lang: String) {
                     Icon(Icons.Default.Navigation, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Navigate to ${ro.name}", fontSize = 16.sp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun InfoCardWithCall(
+    title: String,
+    icon: ImageVector,
+    color: Color,
+    name: String,
+    mobile: String,
+    context: android.content.Context
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(color.copy(alpha = 0.2f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(icon, contentDescription = null, tint = color)
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = title,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF212121)
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(text = "Name", color = Color.Gray, fontSize = 12.sp)
+                    Text(text = name, fontWeight = FontWeight.Medium, color = Color(0xFF212121))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(text = "Mobile", color = Color.Gray, fontSize = 12.sp)
+                    Text(text = mobile, fontWeight = FontWeight.Medium, color = Color(0xFF212121))
+                }
+
+                IconButton(
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_DIAL).apply {
+                            data = Uri.parse("tel:$mobile")
+                        }
+                        context.startActivity(intent)
+                    },
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(color.copy(alpha = 0.2f), CircleShape)
+                ) {
+                    Icon(
+                        Icons.Default.Call,
+                        contentDescription = "Call",
+                        tint = color
+                    )
                 }
             }
         }
@@ -942,6 +1073,9 @@ fun FeedbackScreen(navController: NavHostController, lang: String) {
     var officerFeedback by remember { mutableStateOf("") }
     var managerFeedback by remember { mutableStateOf("") }
     var suggestions by remember { mutableStateOf("") }
+    var isAnonymous by remember { mutableStateOf(false) }
+    var userName by remember { mutableStateOf("") }
+    var userMobile by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -970,7 +1104,8 @@ fun FeedbackScreen(navController: NavHostController, lang: String) {
                     Text(
                         text = "Rate Your Experience",
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF212121)
                     )
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -997,15 +1132,94 @@ fun FeedbackScreen(navController: NavHostController, lang: String) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Anonymous Toggle
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.VisibilityOff,
+                            contentDescription = null,
+                            tint = Color(0xFF9C27B0)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = "Post as Anonymous",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF212121)
+                        )
+                    }
+                    Switch(
+                        checked = isAnonymous,
+                        onCheckedChange = { isAnonymous = it }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Personal Details (shown only if not anonymous)
+            AnimatedVisibility(visible = !isAnonymous) {
+                Column {
+                    OutlinedTextField(
+                        value = userName,
+                        onValueChange = { userName = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Your Name") },
+                        placeholder = { Text("Enter your name", color = Color.Gray) },
+                        leadingIcon = {
+                            Icon(Icons.Default.Person, contentDescription = null)
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color(0xFF212121),
+                            unfocusedTextColor = Color(0xFF212121)
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    OutlinedTextField(
+                        value = userMobile,
+                        onValueChange = { userMobile = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Mobile Number") },
+                        placeholder = { Text("Enter your mobile number", color = Color.Gray) },
+                        leadingIcon = {
+                            Icon(Icons.Default.Phone, contentDescription = null)
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color(0xFF212121),
+                            unfocusedTextColor = Color(0xFF212121)
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+
             OutlinedTextField(
                 value = officerFeedback,
                 onValueChange = { officerFeedback = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp),
-                label = { Text("Officer Feedback") },
-                placeholder = { Text("Share your experience with the officers...") },
-                maxLines = 4
+                label = { Text("Officer Feedback", color = Color(0xFF212121)) },
+                placeholder = { Text("Share your experience with the officers...", color = Color.Gray) },
+                maxLines = 4,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color(0xFF212121),
+                    unfocusedTextColor = Color(0xFF212121)
+                )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -1016,9 +1230,13 @@ fun FeedbackScreen(navController: NavHostController, lang: String) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp),
-                label = { Text("Depot Manager Feedback") },
-                placeholder = { Text("Share your experience with the depot manager...") },
-                maxLines = 4
+                label = { Text("Depot Manager Feedback", color = Color(0xFF212121)) },
+                placeholder = { Text("Share your experience with the depot manager...", color = Color.Gray) },
+                maxLines = 4,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color(0xFF212121),
+                    unfocusedTextColor = Color(0xFF212121)
+                )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -1029,21 +1247,28 @@ fun FeedbackScreen(navController: NavHostController, lang: String) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp),
-                label = { Text("Suggestions") },
-                placeholder = { Text("Any suggestions for improvement...") },
-                maxLines = 4
+                label = { Text("Suggestions", color = Color(0xFF212121)) },
+                placeholder = { Text("Any suggestions for improvement...", color = Color.Gray) },
+                maxLines = 4,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color(0xFF212121),
+                    unfocusedTextColor = Color(0xFF212121)
+                )
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {
-                    if (rating > 0) {
+                    if (rating > 0 && (isAnonymous || (userName.isNotEmpty() && userMobile.isNotEmpty()))) {
                         val feedback = Feedback(
                             rating = rating,
                             officerFeedback = officerFeedback,
                             managerFeedback = managerFeedback,
-                            suggestions = suggestions
+                            suggestions = suggestions,
+                            isAnonymous = isAnonymous,
+                            userName = if (isAnonymous) "Anonymous" else userName,
+                            userMobile = if (isAnonymous) "" else userMobile
                         )
 
                         val db = FirebaseFirestore.getInstance()
@@ -1057,7 +1282,7 @@ fun FeedbackScreen(navController: NavHostController, lang: String) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                enabled = rating > 0,
+                enabled = rating > 0 && (isAnonymous || (userName.isNotEmpty() && userMobile.isNotEmpty())),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
             ) {
                 Icon(Icons.Default.Send, contentDescription = null)
@@ -1079,6 +1304,7 @@ fun AdminDashboardScreen(navController: NavHostController, lang: String) {
     var isAuthenticated by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(0) }
     var complaints by remember { mutableStateOf<List<Complaint>>(emptyList()) }
+    var feedbacks by remember { mutableStateOf<List<Feedback>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         val db = FirebaseFirestore.getInstance()
@@ -1086,6 +1312,12 @@ fun AdminDashboardScreen(navController: NavHostController, lang: String) {
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, _ ->
                 complaints = snapshot?.toObjects(Complaint::class.java) ?: emptyList()
+            }
+
+        db.collection("feedback")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, _ ->
+                feedbacks = snapshot?.toObjects(Feedback::class.java) ?: emptyList()
             }
     }
 
@@ -1118,7 +1350,8 @@ fun AdminDashboardScreen(navController: NavHostController, lang: String) {
                 Text(
                     text = "Enter Admin Password",
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF212121)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -1128,7 +1361,11 @@ fun AdminDashboardScreen(navController: NavHostController, lang: String) {
                     onValueChange = { password = it },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Password") },
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color(0xFF212121),
+                        unfocusedTextColor = Color(0xFF212121)
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -1156,17 +1393,22 @@ fun AdminDashboardScreen(navController: NavHostController, lang: String) {
                     Tab(
                         selected = selectedTab == 0,
                         onClick = { selectedTab = 0 },
-                        text = { Text("Date-wise") }
+                        text = { Text("Date-wise", color = Color(0xFF212121)) }
                     )
                     Tab(
                         selected = selectedTab == 1,
                         onClick = { selectedTab = 1 },
-                        text = { Text("Vehicle-wise") }
+                        text = { Text("Vehicle-wise", color = Color(0xFF212121)) }
                     )
                     Tab(
                         selected = selectedTab == 2,
                         onClick = { selectedTab = 2 },
-                        text = { Text("Outlet-wise") }
+                        text = { Text("Outlet-wise", color = Color(0xFF212121)) }
+                    )
+                    Tab(
+                        selected = selectedTab == 3,
+                        onClick = { selectedTab = 3 },
+                        text = { Text("Feedback", color = Color(0xFF212121)) }
                     )
                 }
 
@@ -1174,7 +1416,138 @@ fun AdminDashboardScreen(navController: NavHostController, lang: String) {
                     0 -> ComplaintsList(complaints, navController, "date")
                     1 -> GroupedList(complaints.groupBy { it.vehicle }, navController, "vehicle")
                     2 -> GroupedList(complaints.groupBy { it.ro }, navController, "outlet")
+                    3 -> FeedbackList(feedbacks)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun FeedbackList(feedbacks: List<Feedback>) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(feedbacks) { feedback ->
+            FeedbackCard(feedback)
+        }
+    }
+}
+
+@Composable
+fun FeedbackCard(feedback: Feedback) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // Header with rating and date
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    repeat(feedback.rating) {
+                        Icon(
+                            Icons.Filled.Star,
+                            contentDescription = null,
+                            tint = Color(0xFFFFD700),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+                Text(
+                    text = feedback.date,
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // User Info
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        if (feedback.isAnonymous) Color(0xFFE1BEE7) else Color(0xFFBBDEFB),
+                        RoundedCornerShape(8.dp)
+                    )
+                    .padding(12.dp)
+            ) {
+                Icon(
+                    imageVector = if (feedback.isAnonymous) Icons.Default.VisibilityOff else Icons.Default.Person,
+                    contentDescription = null,
+                    tint = if (feedback.isAnonymous) Color(0xFF9C27B0) else Color(0xFF2196F3),
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column {
+                    Text(
+                        text = feedback.userName,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF212121)
+                    )
+                    if (!feedback.isAnonymous && feedback.userMobile.isNotEmpty()) {
+                        Text(
+                            text = feedback.userMobile,
+                            fontSize = 12.sp,
+                            color = Color(0xFF616161)
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Feedbacks
+            if (feedback.officerFeedback.isNotEmpty()) {
+                Text(
+                    text = "Officer Feedback:",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF2196F3)
+                )
+                Text(
+                    text = feedback.officerFeedback,
+                    fontSize = 14.sp,
+                    color = Color(0xFF212121)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            if (feedback.managerFeedback.isNotEmpty()) {
+                Text(
+                    text = "Manager Feedback:",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF4CAF50)
+                )
+                Text(
+                    text = feedback.managerFeedback,
+                    fontSize = 14.sp,
+                    color = Color(0xFF212121)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            if (feedback.suggestions.isNotEmpty()) {
+                Text(
+                    text = "Suggestions:",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFFF9800)
+                )
+                Text(
+                    text = feedback.suggestions,
+                    fontSize = 14.sp,
+                    color = Color(0xFF212121)
+                )
             }
         }
     }
@@ -1255,7 +1628,8 @@ fun ComplaintCard(complaint: Complaint, onClick: () -> Unit) {
                 Text(
                     text = complaint.vehicle,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF212121)
                 )
                 Text(
                     text = complaint.date,
@@ -1264,8 +1638,18 @@ fun ComplaintCard(complaint: Complaint, onClick: () -> Unit) {
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "RO: ${complaint.ro}", fontSize = 14.sp)
+            Text(text = "RO: ${complaint.ro}", fontSize = 14.sp, color = Color(0xFF616161))
             Text(text = "Issue: ${complaint.issue}", fontSize = 14.sp, color = Color(0xFFFF5722))
+
+            if (complaint.issueDetails.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Details: ${complaint.issueDetails}",
+                    fontSize = 12.sp,
+                    color = Color(0xFF757575),
+                    maxLines = 2
+                )
+            }
         }
     }
 }
