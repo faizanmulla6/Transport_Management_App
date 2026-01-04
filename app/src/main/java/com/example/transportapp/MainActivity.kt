@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -234,19 +235,30 @@ fun LanguageSelectionScreen(navController: NavHostController, onLanguageSelected
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.Language,
-                contentDescription = null,
-                modifier = Modifier.size(80.dp),
-                tint = Color.White
+            // Company Logo (Placeholder - Replace with actual logo)
+
+            // App Title
+            Text(
+                text = "Transport Sahayak System",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                textAlign = TextAlign.Center
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Image(
+                painterResource(id = R.drawable.logo), "Company Logo", Modifier.size(150.dp)
+            )
+
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = "Select Language / भाषा चुनें / भाषा निवडा",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
                 color = Color.White,
                 textAlign = TextAlign.Center
             )
@@ -415,6 +427,7 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
     var selectedVehicle by remember { mutableStateOf<Vehicle?>(null) }
     var searchRO by remember { mutableStateOf("") }
     var selectedRO by remember { mutableStateOf<RO?>(null) }
+    var searchIssue by remember { mutableStateOf("") }
     var selectedIssue by remember { mutableStateOf("") }
     var issueDetails by remember { mutableStateOf("") }
     var showVehicleDropdown by remember { mutableStateOf(false) }
@@ -430,6 +443,10 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
     val filteredROs = DataProvider.ros.filter {
         it.name.contains(searchRO, ignoreCase = true) ||
                 it.location.contains(searchRO, ignoreCase = true)
+    }
+
+    val filteredIssues = DataProvider.issues.filter {
+        it.contains(searchIssue, ignoreCase = true)
     }
 
     Column(
@@ -560,7 +577,7 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Issue Dropdown
+            // Issue Search (Smart Dropdown)
             Text(
                 text = Strings.get("select_issue", lang),
                 fontSize = 16.sp,
@@ -570,11 +587,14 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
             )
 
             OutlinedTextField(
-                value = selectedIssue,
-                onValueChange = {},
+                value = selectedIssue.ifEmpty { searchIssue },
+                onValueChange = {
+                    searchIssue = it
+                    selectedIssue = ""
+                    showIssueDropdown = true
+                },
                 modifier = Modifier.fillMaxWidth(),
-                readOnly = true,
-                placeholder = { Text(Strings.get("select_issue", lang), color = Color.Gray) },
+                placeholder = { Text("Search or select issue...", color = Color.Gray) },
                 trailingIcon = {
                     IconButton(onClick = { showIssueDropdown = !showIssueDropdown }) {
                         Icon(Icons.Default.ArrowDropDown, contentDescription = null)
@@ -586,7 +606,7 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
                 )
             )
 
-            if (showIssueDropdown) {
+            if (showIssueDropdown && filteredIssues.isNotEmpty()) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -594,18 +614,30 @@ fun ComplaintFormScreen(navController: NavHostController, lang: String) {
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
                     LazyColumn {
-                        items(DataProvider.issues) { issue ->
-                            Text(
-                                text = issue,
-                                color = Color(0xFF212121),
+                        items(filteredIssues) { issue ->
+                            Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
                                         selectedIssue = issue
+                                        searchIssue = ""
                                         showIssueDropdown = false
                                     }
-                                    .padding(16.dp)
-                            )
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = null,
+                                    tint = Color(0xFFFF5722),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    text = issue,
+                                    color = Color(0xFF212121)
+                                )
+                            }
                         }
                     }
                 }
